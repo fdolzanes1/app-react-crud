@@ -22,6 +22,20 @@ class ListContact extends Component {
 }
 
 export default class ContactBox extends Component {
+
+  url = "https://nameless-badlands-32634.herokuapp.com/api/contacts";
+
+  state = {
+    contacts: [],
+  }
+
+  componentDidMount() {
+    fetch(this.url)
+      .then(response => response.json())
+      .then(contacts => console.log(contacts))
+      .catch(e => console.log(e));
+  }
+
   render() {
     return (
       <div className="row">
