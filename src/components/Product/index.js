@@ -1,7 +1,7 @@
 import React, { Component } from 'react'; 
 import './styles.css';
 
-export class FormProduct extends Component {
+class FormProduct extends Component {
   render() {
     return (
       <div>
@@ -11,11 +11,22 @@ export class FormProduct extends Component {
   }
 }
 
-export class ListProduct extends Component {
+class ListProduct extends Component {
   render() {
     return (
       <div>
         <h2>Listar de Produtos</h2>
+      </div>
+    );
+  }
+}
+
+export default class ProductBox extends Component {
+  render() {
+    return (
+      <div className="row">
+        <div className="col-md-6"><FormProduct/></div>
+        <div className="col-md-6"><ListProduct/></div>
       </div>
     );
   }
