@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Table, Button, Form, FormGroup, Label, Input } from 'reactstrap';
 import './styles.css';
+import Header from '../Header';
 
 class FormContact extends Component {
 
@@ -17,12 +18,21 @@ class FormContact extends Component {
     const { model } = this.state;
     model[field] = e.target.value;
     this.setState({ model });
-    console.log(this.state.model);
+  }
+
+  create  = () => {
+    let data = {
+      _id: parseInt(this.state.model.id),
+      nome: this.state.model.nome, 
+      email: this.state.model.email, 
+      telefone: this.state.model.telefone
+    }; 
+    this.props.contactCreate(data);
   }
 
   render() {
     return (
-      <Form onSubmit={this.enviaForm} method="post">
+      <Form >
         <FormGroup>
           <Label for="nome">Nome</Label>
           <Input id="nome" value={this.state.model.nome} type="text" placeholder="Digite o seu Nome" onChange={ e => this.setValues(e, 'nome')}></Input>
@@ -36,7 +46,7 @@ class FormContact extends Component {
           <Input id="telefone" value={this.state.model.telefone} type="text" placeholder="Digite o seu Telefone" onChange={ e => this.setValues(e, 'telefone')}></Input>
         </FormGroup>
         <FormGroup>
-          <Button type="submit" color="primary">Salvar Contato</Button>
+          <Button onClick={this.create} color="primary">Salvar Contato</Button>
         </FormGroup>
       </Form>
     );
@@ -47,7 +57,7 @@ class ListContact extends Component {
   render() {
 
     const { contacts } = this.props;
-    console.log(contacts);
+    
     return (
       <Table className="table-bordered text-center">
         <thead className="thead-dark">
@@ -92,12 +102,31 @@ export default class ContactBox extends Component {
       .catch(e => console.log(e));
   }
 
+  create = (contact) => {
+    const requestInfo = {
+      method: 'POST',
+      body: JSON.stringify(contact), 
+      headers: new Headers({
+        'Content-type': 'application/json'
+      })
+
+    };
+    fetch(this.url, requestInfo)
+      .then(response => response.json())
+      .then(newContact => {
+        let { contacts } = this.state; 
+        contacts.push(newContact); 
+        this.setState({ contacts });
+      })
+      .catch( e => console.log(e) );
+  }
+
   render() {
     return (
       <div className="row">
         <div className="col-md-6">
           <h2>Cadastro de Contato</h2>
-          <FormContact />
+          <FormContact contactCreate={this.create}/>
 
         </div>
         <div className="col-md-6">
