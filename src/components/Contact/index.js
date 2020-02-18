@@ -27,6 +27,7 @@ class FormContact extends Component {
       email: this.state.model.email, 
       telefone: this.state.model.telefone
     }; 
+    this.setState({ model:{ _id: 0, nome: '', email: '', telefone: '' }  });
     this.props.contactCreate(data);
   }
 
@@ -35,15 +36,15 @@ class FormContact extends Component {
       <Form >
         <FormGroup>
           <Label for="nome">Nome</Label>
-          <Input id="nome" value={this.state.model.nome} type="text" placeholder="Digite o seu Nome" onChange={ e => this.setValues(e, 'nome')}></Input>
+          <Input id="nome" value={this.state.model.nome} type="text" placeholder="Digite o seu Nome" onChange={ e => this.setValues(e, 'nome')} ></Input>
         </FormGroup>
         <FormGroup>
           <Label for="email">Email</Label>
-          <Input id="email" value={this.state.model.email} type="text" placeholder="Digite o seu Email" onChange={ e => this.setValues(e, 'email')}></Input>
+          <Input id="email" value={this.state.model.email} type="text" placeholder="Digite o seu Email" onChange={ e => this.setValues(e, 'email')} ></Input>
         </FormGroup>
         <FormGroup>
           <Label for="telefone">Telefone</Label>
-          <Input id="telefone" value={this.state.model.telefone} type="text" placeholder="Digite o seu Telefone" onChange={ e => this.setValues(e, 'telefone')}></Input>
+          <Input id="telefone" value={this.state.model.telefone} type="text" placeholder="Digite o seu Telefone" onChange={ e => this.setValues(e, 'telefone')} ></Input>
         </FormGroup>
         <FormGroup>
           <Button onClick={this.create} color="primary">Salvar Contato</Button>
@@ -54,10 +55,13 @@ class FormContact extends Component {
 }
 
 class ListContact extends Component {
-  render() {
+  
+  delete = (_id) => {
+    this.props.deleteContact(_id);
+  }
 
+  render() {
     const { contacts } = this.props;
-    
     return (
       <Table className="table-bordered text-center">
         <thead className="thead-dark">
@@ -76,7 +80,7 @@ class ListContact extends Component {
                 <td>{contact.email}</td>
                 <td>{contact.telefone}</td>
                 <td><Button color="info" size="sm">Editar</Button>
-                  <Button color="danger" size="sm">Excluir</Button>
+                  <Button color="danger" size="sm" onClick={ e => this.delete(contact._id)}>Excluir</Button>
                 </td>
               </tr>
             ))
@@ -121,6 +125,16 @@ export default class ContactBox extends Component {
       .catch( e => console.log(e) );
   }
 
+  delete = (_id) => {
+    fetch(`${ this.url }/${ _id }`, { method: 'DELETE' })
+      .then(response => response.json())
+      .then(rows => {
+        const contacts = this.state.contacts.filter(contact => contact._id !== _id);
+        this.setState({ contacts });
+      })
+      .catch(e => console.log(e));
+  };
+
   render() {
     return (
       <div className="row">
@@ -131,7 +145,7 @@ export default class ContactBox extends Component {
         </div>
         <div className="col-md-6">
           <h2>Listar de Contato</h2>
-          <ListContact contacts={this.state.contacts} />
+          <ListContact contacts={this.state.contacts} deleteContact={ this.delete } />
 
         </div>
       </div>
