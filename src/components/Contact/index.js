@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Table, Button, Form, FormGroup, Label, Input } from 'reactstrap';
+import PubSub from 'pubsub-js';
+import { Table, Button, Form, FormGroup, Label, Input, Alert } from 'reactstrap';
 import './styles.css';
 import Header from '../Header';
 
@@ -21,14 +22,14 @@ class FormContact extends Component {
   }
 
   create  = () => {
-    let data = {
-      _id: parseInt(this.state.model.id),
-      nome: this.state.model.nome, 
-      email: this.state.model.email, 
-      telefone: this.state.model.telefone
-    }; 
     this.setState({ model:{ _id: 0, nome: '', email: '', telefone: '' }  });
-    this.props.contactCreate(data);
+    this.props.contactCreate(this.state.model);
+  }
+
+  componentWillMount() {
+    PubSub.subscribe('edit-contact', (topic, contact) => {
+      this.setState({ model: contact });
+    });
   }
 
   render() {
@@ -60,6 +61,11 @@ class ListContact extends Component {
     this.props.deleteContact(_id);
   }
 
+  onEdit = ( contact ) => {
+    PubSub.publish('edit-contact', contact);
+    console.log( contact );
+  }
+  
   render() {
     const { contacts } = this.props;
     return (
@@ -79,8 +85,8 @@ class ListContact extends Component {
                 <td>{contact.nome}</td>
                 <td>{contact.email}</td>
                 <td>{contact.telefone}</td>
-                <td><Button color="info" size="sm">Editar</Button>
-                  <Button color="danger" size="sm" onClick={ e => this.delete(contact._id)}>Excluir</Button>
+                <td><Button color="info" size="sm" onClick={ e => this.onEdit( contact ) }>Editar</Button>
+                  <Button color="danger" size="sm" onClick={ e => this.delete( contact._id )}>Excluir</Button>
                 </td>
               </tr>
             ))
@@ -97,6 +103,10 @@ export default class ContactBox extends Component {
 
   state = {
     contacts: [],
+      message: {
+        text: '',
+        alert: ''
+      }
   }
 
   componentDidMount() {
@@ -106,23 +116,47 @@ export default class ContactBox extends Component {
       .catch(e => console.log(e));
   }
 
-  create = (contact) => {
+  save = (contact) => {
+    let data = {
+      _id: contact._id,
+      nome: contact.nome, 
+      email: contact.email, 
+      telefone: contact.telefone
+    }; 
+    console.log(data);
     const requestInfo = {
-      method: 'POST',
-      body: JSON.stringify(contact), 
+      method: data._id !==0 ? 'PUT':'POST',
+      body: JSON.stringify(data), 
       headers: new Headers({
         'Content-type': 'application/json'
       })
 
     };
-    fetch(this.url, requestInfo)
+    
+    if ( data._id === 0) {
+      fetch(this.url, requestInfo)
       .then(response => response.json())
       .then(newContact => {
         let { contacts } = this.state; 
         contacts.push(newContact); 
-        this.setState({ contacts });
+        this.setState({ contacts, message: { text: "New Contact Added", alert: 'success' } });
+        this.timerMessage(3000);
       })
       .catch( e => console.log(e) );
+    } else {
+      fetch(`${ this.url }/${ data._id }`, requestInfo)
+      .then(response => response.json())
+      .then(updatedContact => {
+        let { contacts } = this.state;
+        console.log(contacts);
+        let position = this.state.contacts.findIndex(contact => contact._id === data._id);
+        contacts[position] = updatedContact;
+        this.setState({ contacts, message: { text: "Contact Updated", alert: 'info' } });
+        this.timerMessage(3000);
+      })
+      .catch( e => console.log(e) );
+    }
+    
   }
 
   delete = (_id) => {
@@ -140,7 +174,7 @@ export default class ContactBox extends Component {
       <div className="row">
         <div className="col-md-6">
           <h2>Cadastro de Contato</h2>
-          <FormContact contactCreate={this.create}/>
+          <FormContact contactCreate={this.save}/>
 
         </div>
         <div className="col-md-6">
