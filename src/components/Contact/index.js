@@ -63,7 +63,6 @@ class ListContact extends Component {
 
   onEdit = ( contact ) => {
     PubSub.publish('edit-contact', contact);
-    console.log( contact );
   }
   
   render() {
@@ -145,16 +144,16 @@ export default class ContactBox extends Component {
       .catch( e => console.log(e) );
     } else {
       fetch(`${ this.url }/${ data._id }`, requestInfo)
-      .then(response => response.json())
-      .then(updatedContact => {
-        let { contacts } = this.state;
-        console.log(contacts);
-        let position = this.state.contacts.findIndex(contact => contact._id === data._id);
-        contacts[position] = updatedContact;
-        this.setState({ contacts, message: { text: "Contact Updated", alert: 'info' } });
-        this.timerMessage(3000);
-      })
-      .catch( e => console.log(e) );
+        .then(response => response.json())
+        .then(updatedContact => {
+          let { contacts } = this.state;
+          
+          let position = this.state.contacts.findIndex(contact => contact._id === data._id);
+          contacts[position] = updatedContact;
+          this.setState({ contacts, message: { text: "Contact Updated", alert: 'info' } });
+          this.timerMessage(3000);
+        })
+        .catch( e => console.log(e) );
     }
     
   }
@@ -164,23 +163,38 @@ export default class ContactBox extends Component {
       .then(response => response.json())
       .then(rows => {
         const contacts = this.state.contacts.filter(contact => contact._id !== _id);
-        this.setState({ contacts });
+        this.setState({ contacts,  message: { text: 'Produto deletado com sucesso.', alert: 'danger' } });
+        this.timerMessage(3000);
       })
       .catch(e => console.log(e));
   };
 
+  timerMessage = (duration) => {
+    setTimeout(() => {
+      this.setState({ message: { text: '', alert: ''} });
+    }, duration);
+  }
+
   render() {
     return (
-      <div className="row">
-        <div className="col-md-6">
-          <h2>Cadastro de Contato</h2>
-          <FormContact contactCreate={this.save}/>
+      <div>
+        {
+          this.state.message.text !== ''? (
+              <Alert color={this.state.message.alert} className="text-center"> {this.state.message.text} </Alert>
+          ) : ''
+        }
 
-        </div>
-        <div className="col-md-6">
-          <h2>Listar de Contato</h2>
-          <ListContact contacts={this.state.contacts} deleteContact={ this.delete } />
+        <div className="row">
+          <div className="col-md-6">
+            <h2>Cadastro de Contato</h2>
+            <FormContact contactCreate={this.save}/>
 
+          </div>
+          <div className="col-md-6">
+            <h2>Listar de Contato</h2>
+            <ListContact contacts={this.state.contacts} deleteContact={ this.delete } />
+
+          </div>
         </div>
       </div>
     );
