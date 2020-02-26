@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Header from './components/Header';
 import ContactBox from './components/Contact';
+import Footer from './components/Footer';
 
 class App extends Component {
   render () {
@@ -8,6 +9,7 @@ class App extends Component {
       <div className="container">
         <Header title="Contact App"/>
         <ContactBox/>
+        <Footer/>
       </div>
     );
   }

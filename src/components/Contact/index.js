@@ -66,7 +66,7 @@ class ListContact extends Component {
   render() {
     const { contacts } = this.props;
     return (
-      <Table className="table-bordered text-center">
+      <Table className="table-responsive text-center" responsive>
         <thead className="thead-dark">
           <tr>
             <th>Nome</th>
@@ -120,7 +120,7 @@ export default class ContactBox extends Component {
       email: contact.email, 
       telefone: contact.telefone
     }; 
-    console.log(data);
+
     const requestInfo = {
       method: data._id != null ? 'PUT':'POST',
       body: JSON.stringify(data), 
@@ -175,7 +175,7 @@ export default class ContactBox extends Component {
 
   render() {
     return (
-      <div>
+      <div className="contact-box">
         {
           this.state.message.text !== ''? (
               <Alert color={this.state.message.alert} className="text-center"> {this.state.message.text} </Alert>
@@ -186,12 +186,10 @@ export default class ContactBox extends Component {
           <div className="col-md-6">
             <h2>Cadastro de Contato</h2>
             <FormContact contactCreate={this.save}/>
-
           </div>
           <div className="col-md-6">
             <h2>Listar de Contato</h2>
             <ListContact contacts={this.state.contacts} deleteContact={ this.delete } />
-
           </div>
         </div>
       </div>
