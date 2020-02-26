@@ -2,13 +2,11 @@ import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
 import { Table, Button, Form, FormGroup, Label, Input, Alert } from 'reactstrap';
 import './styles.css';
-import Header from '../Header';
 
 class FormContact extends Component {
 
   state = { 
     model: {
-      _id: 0,
       nome: '', 
       email: '', 
       telefone: '' 
@@ -22,7 +20,7 @@ class FormContact extends Component {
   }
 
   create  = () => {
-    this.setState({ model:{ _id: 0, nome: '', email: '', telefone: '' }  });
+    this.setState({ model:{ nome: '', email: '', telefone: '' }  });
     this.props.contactCreate(this.state.model);
   }
 
@@ -124,7 +122,7 @@ export default class ContactBox extends Component {
     }; 
     console.log(data);
     const requestInfo = {
-      method: data._id !==0 ? 'PUT':'POST',
+      method: data._id != null ? 'PUT':'POST',
       body: JSON.stringify(data), 
       headers: new Headers({
         'Content-type': 'application/json'
@@ -132,13 +130,13 @@ export default class ContactBox extends Component {
 
     };
     
-    if ( data._id === 0) {
+    if ( data._id == null) {
       fetch(this.url, requestInfo)
       .then(response => response.json())
       .then(newContact => {
         let { contacts } = this.state; 
         contacts.push(newContact); 
-        this.setState({ contacts, message: { text: "New Contact Added", alert: 'success' } });
+        this.setState({ contacts, message: { text: "Novo Contado Adicionado", alert: 'success' } });
         this.timerMessage(3000);
       })
       .catch( e => console.log(e) );
@@ -150,7 +148,7 @@ export default class ContactBox extends Component {
           
           let position = this.state.contacts.findIndex(contact => contact._id === data._id);
           contacts[position] = updatedContact;
-          this.setState({ contacts, message: { text: "Contact Updated", alert: 'info' } });
+          this.setState({ contacts, message: { text: "Contato Atualizado", alert: 'info' } });
           this.timerMessage(3000);
         })
         .catch( e => console.log(e) );
@@ -163,7 +161,7 @@ export default class ContactBox extends Component {
       .then(response => response.json())
       .then(rows => {
         const contacts = this.state.contacts.filter(contact => contact._id !== _id);
-        this.setState({ contacts,  message: { text: 'Produto deletado com sucesso.', alert: 'danger' } });
+        this.setState({ contacts,  message: { text: 'Contato Deletado', alert: 'danger' } });
         this.timerMessage(3000);
       })
       .catch(e => console.log(e));
