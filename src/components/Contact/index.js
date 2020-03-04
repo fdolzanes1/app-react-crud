@@ -53,6 +53,19 @@ class FormContact extends Component {
   }
 }
 
+class ContactFilter extends Component {
+  
+  handleChange (event) {
+    this.props.updateSearch(event.target.value);
+  }
+  
+  render () {
+    return (
+      <Input type="text" placeholder="Find a Contact" className="input-search" onChange={this.handleChange.bind(this)} value={this.props.searchText} />
+    )
+  }
+}
+
 class ListContact extends Component {
   
   delete = (_id) => {
@@ -62,11 +75,18 @@ class ListContact extends Component {
   onEdit = ( contact ) => {
     PubSub.publish('edit-contact', contact);
   }
+
+  filter (contacts) {
+    if (!this.props.filter) {
+      return contacts
+    }
+    return contacts.filter((contact) => contact.nome.toString().toLowerCase().indexOf(this.props.filter.toLowerCase()) >= 0)
+  }
   
   render() {
     const { contacts } = this.props;
     return (
-      <Table className="table-responsive text-center" responsive>
+      <Table responsive>
         <thead className="thead-dark">
           <tr>
             <th>Nome</th>
@@ -77,7 +97,8 @@ class ListContact extends Component {
         </thead>
         <tbody>
           {
-            contacts.map(contact => (
+            this.filter(contacts)
+            .map(contact => (
               <tr key={contact._id} >
                 <td>{contact.nome}</td>
                 <td>{contact.email}</td>
@@ -103,7 +124,8 @@ export default class ContactBox extends Component {
       message: {
         text: '',
         alert: ''
-      }
+      }, 
+    filter: null
   }
 
   componentDidMount() {
@@ -173,6 +195,14 @@ export default class ContactBox extends Component {
     }, duration);
   }
 
+  updateSearch (inputValue) {
+    let filter = this.state.filter;
+    
+    this.setState({
+      filter: inputValue
+    });
+  }
+
   render() {
     return (
       <div className="contact-box">
@@ -189,7 +219,8 @@ export default class ContactBox extends Component {
           </div>
           <div className="col-md-6">
             <h2>Listar de Contato</h2>
-            <ListContact contacts={this.state.contacts} deleteContact={ this.delete } />
+            <ContactFilter  updateSearch={this.updateSearch.bind(this)} searchText={this.state.filter} />
+            <ListContact contacts={this.state.contacts} deleteContact={ this.delete } filter={this.state.filter} />
           </div>
         </div>
       </div>
