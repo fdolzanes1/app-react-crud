@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
+import ReactDOM from 'react-dom';
 import { Table, Button, Form, FormGroup, Label, Input, Alert } from 'reactstrap';
 import './styles.css';
+import ReactPaginate from 'react-paginate'; 
 
 class FormContact extends Component {
 
@@ -124,15 +126,51 @@ export default class ContactBox extends Component {
       message: {
         text: '',
         alert: ''
-      }, 
-    filter: null
+      },
+      currentPageNumber: 1,
+      totalPages: 1,
+      totalItems: 1,
+      limit: 10,
+      filter: null
+  }
+
+  getContact(pageNumber) {
+    let p = new URLSearchParams();
+    p.append('page', pageNumber || 1);
+    console.log(this.url, this.url + '?' + p);
+    fetch(this.url+'?'+p)
+      .then(response => response.json())
+      .then(response => this.setState({ 
+        contacts: response.docs,
+        totalPages: response.pages,
+        currentPageNumber: response.page,
+        totalItems: response.total,
+        limit: response.limit }))
+      .catch(e => console.log(e));
+  }
+
+  handleSelect(number) {
+    let n = number.selected + 1;
+    this.setState({currentPageNumber: number});
+    this.getContact(n);
   }
 
   componentDidMount() {
-    fetch(this.url)
-      .then(response => response.json())
-      .then(response => this.setState({ contacts: response.docs }))
-      .catch(e => console.log(e));
+    this.getContact(this.currentPageNumber);
+  }
+
+  fetchBlogPosts(pageNumber) {
+    let p = new URLSearchParams();
+    p.append('page', pageNumber || 1);
+
+    console.log(this.url, this.url + '?' + p);
+
+    return fetch(this.url + '?' + p, {
+        method: 'GET',
+        mode: 'CORS'
+      })
+      .then(res => res.json())
+      .catch(err => err);
   }
 
   save = (contact) => {
@@ -221,6 +259,20 @@ export default class ContactBox extends Component {
             <h2>Listar de Contato</h2>
             <ContactFilter  updateSearch={this.updateSearch.bind(this)} searchText={this.state.filter} />
             <ListContact contacts={this.state.contacts} deleteContact={ this.delete } filter={this.state.filter} />
+            <ReactPaginate
+              previousLabel={'previous'}
+              nextLabel={'next'}
+              breakLabel={'...'}
+              breakClassName={'break-me'}
+              pageCount={this.state.totalPages}
+              marginPagesDisplayed={2}
+              pageRangeDisplayed={5}
+              onPageChange={this.handleSelect.bind(this)}
+              containerClassName={'pagination'}
+              subContainerClassName={'pages pagination'}
+              activeClassName={'active'}
+              activeLinkClassName	= {'active'}
+            />
           </div>
         </div>
       </div>
