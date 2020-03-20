@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PubSub from 'pubsub-js';
-import ReactDOM from 'react-dom';
 import { Table, Button, Form, FormGroup, Label, Input, Alert } from 'reactstrap';
 import './styles.css';
 import ReactPaginate from 'react-paginate'; 
@@ -248,15 +247,15 @@ export default class ContactBox extends Component {
           this.state.message.text !== ''? (
               <Alert color={this.state.message.alert} className="text-center"> {this.state.message.text} </Alert>
           ) : ''
-        }
+        } 
 
         <div className="row">
           <div className="col-md-5">
-            <h2>Cadastro de Contato</h2>
+            <h3>Cadastro de Contato</h3>
             <FormContact contactCreate={this.save}/>
           </div>
           <div className="col-md-7">
-            <h2>Listar de Contato</h2>
+            <h3>Listar de Contato</h3>
             <ContactFilter  updateSearch={this.updateSearch.bind(this)} searchText={this.state.filter} />
             <ListContact contacts={this.state.contacts} deleteContact={ this.delete } filter={this.state.filter} />
             <ReactPaginate
