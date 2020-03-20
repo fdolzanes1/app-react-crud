@@ -251,11 +251,11 @@ export default class ContactBox extends Component {
         }
 
         <div className="row">
-          <div className="col-md-6">
+          <div className="col-md-5">
             <h2>Cadastro de Contato</h2>
             <FormContact contactCreate={this.save}/>
           </div>
-          <div className="col-md-6">
+          <div className="col-md-7">
             <h2>Listar de Contato</h2>
             <ContactFilter  updateSearch={this.updateSearch.bind(this)} searchText={this.state.filter} />
             <ListContact contacts={this.state.contacts} deleteContact={ this.delete } filter={this.state.filter} />
